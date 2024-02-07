@@ -36,7 +36,7 @@ fi
 
 # This will set the version
 if [ -z "$2" ]; then
-    DB_ENGINE_VERSION=13.4
+    DB_ENGINE_VERSION=15.4
 else
     DB_ENGINE_VERSION=$2
 fi

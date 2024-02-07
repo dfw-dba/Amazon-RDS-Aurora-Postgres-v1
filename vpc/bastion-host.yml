@@ -19,7 +19,7 @@ Parameters:
     Description: Name used for different elements created.
   KeyName:
     Description: Amazon EC2 KeyPair
-    Default: ''
+    Default: 'pgsql-jumpbox-kp'
     # Type: AWS::EC2::KeyPair::KeyName
     Type: String
   BastionHostInstanceName:
@@ -34,7 +34,7 @@ Parameters:
     Type: AWS::EC2::Subnet::Id
   InstanceType:
     Description: Instance family for the test instance
-    Default: t3.medium
+    Default: "t2.micro"
     Type: String
     AllowedValues: 
       - "t2.micro"
@@ -64,23 +64,23 @@ Resources:
         - IpProtocol: tcp
           FromPort: "22"    # SSH
           ToPort: "22"
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: "8080"  # Used for PgAdmin
-          ToPort: "8080"
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: "3306"  # Allow connection to local mysql from DMS
-          ToPort: "3306"
-          CidrIp: 10.0.0.0/16
-        - IpProtocol: tcp
-          FromPort: "3389"  # Windows RDP
-          ToPort: "3389"
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: "8082"  # Future use
-          ToPort: "8082"
-          CidrIp: 0.0.0.0/0
+          CidrIp: 47.185.157.123/32
+        # - IpProtocol: tcp
+        #   FromPort: "8080"  # Used for PgAdmin
+        #   ToPort: "8080"
+        #   CidrIp: 0.0.0.0/0
+        # - IpProtocol: tcp
+        #   FromPort: "3306"  # Allow connection to local mysql from DMS
+        #   ToPort: "3306"
+        #   CidrIp: 10.0.0.0/16
+        # - IpProtocol: tcp
+        #   FromPort: "3389"  # Windows RDP
+        #   ToPort: "3389"
+        #   CidrIp: 0.0.0.0/0
+        # - IpProtocol: tcp
+        #   FromPort: "8082"  # Future use
+        #   ToPort: "8082"
+        #   CidrIp: 0.0.0.0/0
 
 
   # Bastion host role

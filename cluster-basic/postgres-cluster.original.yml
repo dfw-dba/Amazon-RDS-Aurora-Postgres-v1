@@ -35,16 +35,8 @@ Parameters:
   DBInstanceClass:
     Description: 'The instance type of database server.'
     Type: String
-    Default: "db.serverless"
-    AllowedValues: ['db.serverless']
-    # Default: 'db.t3.medium'
-    # AllowedValues: ['db.t3.medium','db.r3.large','db.r5.large','db.r6g.large']
-
-  ScalingConfiguration:
-        AutoPause: true
-        MinCapacity: 0.5
-        MaxCapacity: 4
-        SecondsUntilAutoPause: 1000
+    Default: 'db.t3.medium'
+    AllowedValues: ['db.t3.medium','db.r3.large','db.r5.large','db.r6g.large']
 
   # Master user name created for the cluster
   DBMasterUsername:
@@ -117,11 +109,6 @@ Resources:
       DatabaseName: !FindInMap [ ClusterSettings, global, dbSchema ]
       StorageEncrypted: true
       VpcSecurityGroupIds: [ !Ref VPCSecurityGroupCluster ]
-      ScalingConfiguration:
-        AutoPause: true
-        MaxCapacity: 4
-        MinCapacity: 0.5
-        SecondsUntilAutoPause: !Ref SecondsUntilAutoPause
       Tags:
         - Key: Name
           Value: !Sub ${TemplateName}-cluster

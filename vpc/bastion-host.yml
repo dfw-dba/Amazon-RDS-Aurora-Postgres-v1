@@ -46,6 +46,9 @@ Parameters:
   LatestAmiId:
     Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
     Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+  InstanceSSHCiderIp:
+    Description: "Your public ip"
+    Type: String
 
 # Conditions
 Conditions:
@@ -64,7 +67,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: "22"    # SSH
           ToPort: "22"
-          CidrIp: 47.185.157.123/32
+          CidrIp: !Ref InstanceSSHCiderIp
         # - IpProtocol: tcp
         #   FromPort: "8080"  # Used for PgAdmin
         #   ToPort: "8080"

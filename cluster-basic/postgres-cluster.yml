@@ -12,6 +12,18 @@
 
 AWSTemplateFormatVersion: 2010-09-09
 Description: Amazon RDS PostgreSQL Database Cluster Creation
+
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: 'Serverless Parameters'
+      Parameters:
+      - AutoPause
+      - MaxCapacity
+      - MinCapacity
+      - SecondsUntilAutoPause
+
 ## Parameters
 Parameters:
   TemplateName:
@@ -40,11 +52,18 @@ Parameters:
     # Default: 'db.t3.medium'
     # AllowedValues: ['db.t3.medium','db.r3.large','db.r5.large','db.r6g.large']
 
-  ScalingConfiguration:
-        AutoPause: true
-        MinCapacity: 0.5
-        MaxCapacity: 4
-        SecondsUntilAutoPause: 1000
+
+  MaxCapacity:
+    Description: 'The maximum capacity units for a Serverless Aurora cluster.'
+    Type: String
+    AllowedValues: [1, 2, 3, 4, 5, 8, 16]
+    Default: 4
+  MinCapacity:
+    Description: 'The minimum capacity units for a Serverless Aurora cluster.'
+    Type: String
+    AllowedValues: [0.5, 1, 2, 3, 4, 5, 8, 16]
+    Default: 0.5
+
 
   # Master user name created for the cluster
   DBMasterUsername:
@@ -66,7 +85,7 @@ Parameters:
   DBEngineVersion:
     Description: Select Database Engine Version
     Type: String
-    Default: 15.4
+    Default: 14.10
     AllowedValues:
       - 11.6
       - 11.7
@@ -75,6 +94,7 @@ Parameters:
       - 12.7
       - 13.4
       - 13.6
+      - 14.10
       - 15.4
 
 
@@ -117,11 +137,9 @@ Resources:
       DatabaseName: !FindInMap [ ClusterSettings, global, dbSchema ]
       StorageEncrypted: true
       VpcSecurityGroupIds: [ !Ref VPCSecurityGroupCluster ]
-      ScalingConfiguration:
-        AutoPause: true
-        MaxCapacity: 4
-        MinCapacity: 0.5
-        SecondsUntilAutoPause: !Ref SecondsUntilAutoPause
+      ServerlessV2ScalingConfiguration:
+        MaxCapacity: !Ref MaxCapacity
+        MinCapacity: !Ref MinCapacity
       Tags:
         - Key: Name
           Value: !Sub ${TemplateName}-cluster

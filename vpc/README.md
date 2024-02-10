@@ -52,7 +52,7 @@ yum install git -y
 3. Clone the repository
 su - ec2-user
 
-git clone https://github.com/acloudfan/Amazon-RDS-Aurora-Postgres-v1.git
+git clone https://github.com/dfw-dba/Amazon-RDS-Aurora-Postgres-v1.git
 
 4. Install the tools
 cp -r Amazon-RDS-Aurora-Postgres-v1/bin .

@@ -1,0 +1,2 @@
+CloudFormation deployment order based on dependencies
+1. .\vpc\cluster-vpc-2-az.yml

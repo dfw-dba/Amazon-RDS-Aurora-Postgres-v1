@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Security group for the RDS cluster
+Parameters:
+  RdsAuroraVPC:
+    Type: AWS::EC2::VPC::PublicIp
+    Description: EC2 Public IP
+version: '2'
+services:
+  graphql-engine:
+    image: hasura/graphql-engine:latest
+    ports:
+      - '80:8080'
+    restart: always
+    environment:
+      #HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:<rds-password>@<rds-instance>:5432/labdb 
+      #HASURA_GRAPHQL_DATABASE_URL: !Sub "postgres://postgres:{{resolve:secretsmanager:hasura-sandbox/postgresql/postgres:SecretString:password}}@<rds-instance>:5432/labdb"  "postgres://${USERNAME}:${PASSWORD}@${HOSTNAME}:${PORT}"
+      HASURA_GRAPHQL_DATABASE_URL: !Join ["", "postgres://postgres:", {{resolve:secretsmanager:hasura-sandbox/postgresql/postgres:SecretString:password}}, !Ref RdsAuroraVPC, ":5432/labdb"]
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: labdb
+      HASURA_GRAPHQL_ACCESS_KEY: mylongsecretaccesskey
+      HASURA_GRAPHQL_EE_LICENSE_KEY: licensekey
+      HASURA_GRAPHQL_ADMIN_SECRET: adminsescret
+    command:
+      - graphql-engine
+      - serve
+      - --enable-console
+  data-connector-agent:
+    image: hasura/graphql-data-connector:v2.37.0
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      QUARKUS_LOG_LEVEL: ERROR # FATAL, ERROR, WARN, INFO, DEBUG, TRACE
+      ## https://quarkus.io/guides/opentelemetry#configuration-reference
+      QUARKUS_OPENTELEMETRY_ENABLED: "false"
+      ## QUARKUS_OPENTELEMETRY_TRACER_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/api/v1/athena/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
+    command: |
+      hasura init       

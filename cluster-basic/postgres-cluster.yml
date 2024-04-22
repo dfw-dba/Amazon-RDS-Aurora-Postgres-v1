@@ -69,16 +69,16 @@ Parameters:
   DBMasterUsername:
     Description: 'The master user name for the DB instance (ignored when DBSnapshotIdentifier is set, value used from snapshot).'
     Type: String
-    Default: masteruser
+    Default: postgres
 
   VPCSecurityGroupCluster:
     Description: 'Security group for the DB cluster instances'
     Type: AWS::EC2::SecurityGroup::Id
 
-  DBMasterUserPassword:
-    Description: 'This is the password for the master user'
-    Type: String
-    Default: masteruserpw
+  # DBMasterUserPassword:
+  #   Description: 'This is the password for the master user'
+  #   Type: String
+  #   Default: masteruserpassword
 
 
   # Version of the Database engine
@@ -133,7 +133,7 @@ Resources:
       DBSubnetGroupName: !Ref ClusterDBSubnetGroup
       BackupRetentionPeriod: 7
       MasterUsername: !Ref DBMasterUsername
-      MasterUserPassword: !Ref DBMasterUserPassword
+      MasterUserPassword: '{{resolve:secretsmanager:hasura-sandbox/postgresql/postgres:SecretString:password}}' #!Ref DBMasterUserPassword
       DatabaseName: !FindInMap [ ClusterSettings, global, dbSchema ]
       StorageEncrypted: true
       VpcSecurityGroupIds: [ !Ref VPCSecurityGroupCluster ]

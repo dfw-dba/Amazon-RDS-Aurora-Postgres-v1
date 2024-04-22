@@ -1,4 +1,4 @@
 CloudFormation deployment order based on dependencies
 1: .\vpc\cluster-vpc-2-az.yml
 2: .\cluster-basic\security-group.yml
-3: .\
+3: .\cluster-basic\postgres-cluster.yml

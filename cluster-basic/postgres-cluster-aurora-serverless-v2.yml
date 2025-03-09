@@ -1,0 +1,87 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Amazon Aurora Serverless v2 PostgreSQL Cluster Creation
+
+Parameters:
+  TemplateName:
+    Type: String
+    Default: aurora-serverless-v2
+    Description: Name used for different elements created.
+
+  RdsAuroraVPC:
+    Type: AWS::EC2::VPC::Id
+    Description: Main VPC ID
+
+  PrivateSubnets:
+    Type: String
+    Description: IDs of Private Subnets for Aurora.
+
+  DBMasterUsername:
+    Description: Master username for the cluster
+    Type: String
+    Default: masteruser
+
+  DBMasterUserPassword:
+    Description: Master password for the cluster
+    Type: String
+    Default: masteruserpw
+
+  VPCSecurityGroupCluster:
+    Description: Security group for the DB cluster
+    Type: AWS::EC2::SecurityGroup::Id
+
+  DBEngineVersion:
+    Description: Select Database Engine Version
+    Type: String
+    Default: 15.2
+    AllowedValues:
+      - 15.2
+      - 15.3
+      - 15.4
+      - 15.5
+      - 16.1
+
+Resources:
+  ClusterDBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: !Sub "${TemplateName}-db-subnet-group"
+      SubnetIds: !Split [',', !Ref PrivateSubnets]
+      Tags:
+        - Key: Name
+          Value: !Sub "${TemplateName}-db-subnet-group"
+
+  DBCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      DBClusterIdentifier: !Sub "${TemplateName}-cluster"
+      Engine: aurora-postgresql
+      EngineVersion: !Ref DBEngineVersion
+      ServerlessV2ScalingConfiguration:
+        MinCapacity: 0.5  # Adjust based on your needs
+        MaxCapacity: 4    # Scale up to 4 ACUs
+      DBSubnetGroupName: !Ref ClusterDBSubnetGroup
+      BackupRetentionPeriod: 7
+      MasterUsername: !Ref DBMasterUsername
+      MasterUserPassword: !Ref DBMasterUserPassword
+      StorageEncrypted: true
+      VpcSecurityGroupIds: [!Ref VPCSecurityGroupCluster]
+      Tags:
+        - Key: Name
+          Value: !Sub "${TemplateName}-cluster"
+
+Outputs:
+  DBClusterId:
+    Description: Cluster resource ARN
+    Value: !Ref DBCluster
+
+  ClusterEndpoint:
+    Description: Aurora Cluster Endpoint
+    Value: !GetAtt DBCluster.Endpoint.Address
+
+  ReaderEndpoint:
+    Description: Aurora Reader Endpoint
+    Value: !GetAtt DBCluster.ReadEndpoint.Address
+
+  Port:
+    Description: Aurora Endpoint Port
+    Value: !GetAtt DBCluster.Endpoint.Port
